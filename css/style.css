@@ -1,7 +1,7 @@
 body{ margin: 0px; overflow-x: hidden;  }
-.main-container {background: #f0f2f2; color: #ecf0f1; font-family: 'Open Sans', sans-serif; height: 100vH; width: 100vW; position: relative; overflow: visible;}
+.main-container {background: #f0f2f2; color: #ecf0f1; font-family: 'Open Sans', sans-serif; height: 100vH; width: 100vW; position: relative; overflow: auto;}
 
-.main-container .console-box{ background: #1a1a1a; width: 70vW; min-height: 90vH; position: absolute; top: 50vH; left: 50vW; margin-top: -45vH; margin-left: -35vW; border-radius: 10px; box-shadow: 0px 25px 10px -17px #444; transition: all 0.5s ease;}
+.main-container .console-box{ background: #1a1a1a; width: 70vW; min-height: 90vH; position: absolute; top: 50vH; left: 50vW; margin-top: -45vH; margin-left: -35vW; border-radius: 10px; box-shadow: 0px 25px 10px -17px #444; transition: all 0.5s ease; overflow: auto;}
 .main-container .console-box.zoom-class{ transform: scale(0.8); transition: all 0.5s ease; top: 50%; left: 50%; }
 
 
@@ -9,7 +9,7 @@ body{ margin: 0px; overflow-x: hidden;  }
 .console-box .output-box .console-response{padding: 3px 0px; border-bottom: 1px solid #222; font-size: 12px; font-style: italic;}
 .console-box .output-box .code-entered{padding: 5px 0px; border-bottom: 1px solid #aaa; margin-top: 15px;}
 
-.console-box .input-box{ min-height: 15vh; width: 100%;}
+.console-box .input-box{ min-height: 15vh; width: 100%;   overflow: hidden;}
 .console-box .input-box .textarea-container{ padding-top: 10px;}
 .console-box .input-box textarea{ width: 98%; display: block; box-sizing: border-box; padding: 3px 5px; resize: none; color #fff; background-color: rgba(0,0,0,0); border: 0px; height: 5vh;}
 .console-box .input-box textarea:focus{outline: none;}

@@ -1,18 +1,29 @@
- $(document).ready(function(){
+var appHistoryIndex;
+
+$(document).ready(function(){
     $("#jsCode").focus();
     $("#jsCode").autogrow();
    
     app.getCodesExecutedList();
     app.createListFromLocal();
 
-    var autocompleteSource = app.jsTags.concat(app.codesExectedList);
+    var autocompleteSource = app.jsTags.concat(app.codesExecutedList);
     //console.log(JSON.stringify(autocompleteSource));
     $( "#jsCode" ).autocomplete({
-      source: autocompleteSource
+        source: autocompleteSource,
+        response: function(event, ui) {
+            // ui.content is the array that's about to be sent to the response callback.
+            if (ui.content.length === 0) {
+                $("#empty-message").text("No results found");
+            } else {
+                $("#empty-message").empty();
+            }
+        }
     });
 });
 
-$("#jsCode").bind('keypress', function(event) {
+
+$("#jsCode").bind('keydown', function(event) {
     if( event.shiftKey && event.which === 13 ) {
         return;
     }
@@ -21,17 +32,44 @@ $("#jsCode").bind('keypress', function(event) {
         app.processCode();
         return;
     }
+    
+});
+
+
+$("#jsCode").bind('keyup', function(event) {
+    
+    if(event.which === 38){
+        //up key
+        var lineNumber = app.getLineNumber();
+        if(lineNumber === 1){
+            app.previousExecutedCode();
+        }
+        console.log(appHistoryIndex);
+        return;
+    }
+    if(event.which === 40){
+        //down key
+        var lineNumber = app.getLineNumber();
+        var lastLineNumber = app.lastLineOfInput();
+        if(lineNumber === lastLineNumber){
+            app.nextExecutedCode();
+        }
+        console.log(appHistoryIndex);
+        return;
+    }
 });
 
 console.log = function(message){
-    app.printMessage(message)
+    app.printMessage(message);
 }
 
+
+ 
 
 var app = {
 
     jsTags : [
-        'addEventListener', 'alert applicationCache', 'blur', 'break',
+        'addEventListener', 'alert', 'app', 'applicationCache', 'blur', 'break',
         'case', 'confirm', 'console', 'continue', 'copy', 'default', 'document', 'delete',
         'else', 'encodeURI', 'eval', 'finally', 'find', 'focus', 'for', 'function',
         'getEventListeners', 'getSelection', 'hasOwnProperty', 'history', 'if', 'in', 'isNaN', 'isPrototypeOf',
@@ -40,7 +78,7 @@ var app = {
     ],
     
     codesExecutedObjectsArray: [],
-    codesExectedList: [],
+    codesExecutedList: [],
 
 
     addCodeToConsole: function(htmlObject){
@@ -116,8 +154,10 @@ var app = {
     getCodesExecutedList: function(){
         var storedObject = this.getCodesExecutedObject();
         for(var index=0; index<storedObject.length; index++){
-            app.codesExectedList.push(storedObject[index].code);
+            app.codesExecutedList.push(storedObject[index].code);
         }
+
+        appHistoryIndex = app.codesExecutedList.length - 1;
     },
 
 
@@ -132,14 +172,24 @@ var app = {
 
     getLineNumber: function(){
         var inputText = $("#jsCode").val();
-        return inputText.substr(0, $("#jsCode").selectionStart).split("\n").length;
+        return inputText.substr(0, $("#jsCode")[0].selectionStart).split("\n").length;
     },
 
     lastLineOfInput: function(){
         var inputText = $("#jsCode").val();
-        return inputText.lastIndexOf("\n")+1;
+        if(inputText.indexOf("\n") < 0){
+            return 1;
+        }
+        return (inputText.length - inputText.replace(/\n/g,'').length)+1; //lastIndexOf("\n")+1;
     },
 
+    nextExecutedCode: function(){
+        var codeExecuted = app.codesExecutedList[appHistoryIndex];
+        $("#jsCode").val(codeExecuted);
+        if((appHistoryIndex+1) <= app.codesExecutedList.length){
+            appHistoryIndex++;
+        }
+    },
 
     openMenu: function(){
         $('#history-menu').addClass('open');
@@ -147,7 +197,14 @@ var app = {
         $('.menu-overlay').fadeIn();
     },
 
-    
+    previousExecutedCode: function(){
+        var codeExecuted = app.codesExecutedList[appHistoryIndex];
+        $("#jsCode").val(codeExecuted);
+
+        if((appHistoryIndex-1) >= 0){
+            appHistoryIndex--;
+        }
+    },
 
     processCode: function(){
         var executedCodesObject = {};
@@ -155,11 +212,11 @@ var app = {
         if(codeEntered === ""){
             return;
         }
-
-        var response = this.executeScript(codeEntered);
         this.printMessage(codeEntered, 'code');
+        var response = this.executeScript(codeEntered);
         
-        $("#jsCode").val('').css('height','10vH');
+        
+        $("#jsCode").val('').css('height','5vH');
         if(response.status === 'error'){
             this.printMessage(response.message, 'error');
             this.addInHistoryMenu(codeEntered, 'error');
@@ -172,9 +229,10 @@ var app = {
 
         executedCodesObject.status = response.status;
         executedCodesObject.code = codeEntered;
-
+        this.codesExecutedList.push(executedCodesObject.code);
         this.codesExecutedObjectsArray.push(executedCodesObject);
         localStorage.setItem("executedCodes", JSON.stringify(this.codesExecutedObjectsArray));
+        appHistoryIndex++;
     },
 
 
