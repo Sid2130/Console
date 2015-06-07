@@ -56,5 +56,14 @@ body{ margin: 0px; overflow-x: hidden;  }
 .color-blue{ color: #2980b9;}
 .color-green {color: #27ae60;}
 
-L
 .error { font-style: italic; padding: 3px 0px; border-bottom: 1px solid #555; }
+
+
+/*autocomplete drop down*/
+.ui-widget-content { border: 1px solid #333; background: #fbfcfc; color: #aaa; border-radius: 5px; width: 300px !important; font-family: 'Open Sans', sans-serif; overflow: hidden; font-size: 12px; }
+.ui-state-hover, 
+.ui-widget-content .ui-state-hover, 
+.ui-widget-header .ui-state-hover, 
+.ui-state-focus, 
+.ui-widget-content .ui-state-focus, 
+.ui-widget-header .ui-state-focus { border: 1px solid #aaa; background: #eee; font-weight: normal; color: #212121; }
