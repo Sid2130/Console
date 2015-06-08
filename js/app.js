@@ -1,4 +1,6 @@
-var appHistoryIndex;
+var currentPointer = '';
+var executedPointer = '';
+
 
 $(document).ready(function(){
     $("#jsCode").focus();
@@ -44,7 +46,6 @@ $("#jsCode").bind('keyup', function(event) {
         if(lineNumber === 1){
             app.previousExecutedCode();
         }
-        console.log(appHistoryIndex);
         return;
     }
     if(event.which === 40){
@@ -54,7 +55,7 @@ $("#jsCode").bind('keyup', function(event) {
         if(lineNumber === lastLineNumber){
             app.nextExecutedCode();
         }
-        console.log(appHistoryIndex);
+        
         return;
     }
 });
@@ -88,11 +89,14 @@ var app = {
 
 
     addInHistoryMenu: function(codeEntered, status){
+        if(codeEntered.indexOf('<') > -1){
+            codeEntered = codeEntered.replace(/</g, '&lt;');
+        }
         if(status === 'error'){
-            $('#history-menu').append('<div class="menu-elements error" onclick="app.addCodeToConsole(this);"><i class="fa fa-exclamation-triangle pull-left"></i><span class="text">'+codeEntered+'</span></div>');
+            $('#history-menu .menu-entries-container').append('<div class="menu-elements error" onclick="app.addCodeToConsole(this);"><i class="fa fa-exclamation-triangle pull-left"></i><span class="text">'+codeEntered+'</span></div>');
         }
         else{
-            $('#history-menu').append('<div class="menu-elements success" onclick="app.addCodeToConsole(this);"><i class="fa fa-check-square pull-left"></i><span class="text">'+codeEntered+'</span></div>');
+            $('#history-menu .menu-entries-container').append('<div class="menu-elements success" onclick="app.addCodeToConsole(this);"><i class="fa fa-check-square pull-left"></i><span class="text">'+codeEntered+'</span></div>');
         }  
     },
 
@@ -141,6 +145,8 @@ var app = {
         var response;
         try{
             response = window.eval(codeReceived);
+            //response = window[codeReceived];
+            console.log(response);
         }
         catch(error){
             return {status: 'error', message: error};
@@ -157,9 +163,23 @@ var app = {
             app.codesExecutedList.push(storedObject[index].code);
         }
 
-        appHistoryIndex = app.codesExecutedList.length - 1;
+        this.initializeIndex();
     },
 
+    initializeIndex: function(){
+        if(app.codesExecutedList.length === 0){
+            return;
+        }
+        if(app.codesExecutedList.length === 1){
+            executedPointer = 0;
+            currentPointer = 0;
+        }
+        if(app.codesExecutedList.length > 1){
+            executedPointer = app.codesExecutedList.length - 1;
+            currentPointer = executedPointer - 1;
+        }
+
+    },
 
     getCodesExecutedObject: function(){
         var storedObject = localStorage.getItem("executedCodes");
@@ -180,15 +200,33 @@ var app = {
         if(inputText.indexOf("\n") < 0){
             return 1;
         }
-        return (inputText.length - inputText.replace(/\n/g,'').length)+1; //lastIndexOf("\n")+1;
+        return (inputText.length - inputText.replace(/\n/g,'').length)+1;
     },
 
     nextExecutedCode: function(){
-        var codeExecuted = app.codesExecutedList[appHistoryIndex];
-        $("#jsCode").val(codeExecuted);
-        if((appHistoryIndex+1) <= app.codesExecutedList.length){
-            appHistoryIndex++;
+        if( currentPointer === app.codesExecutedList.length+1 && executedPointer === app.codesExecutedList.length)
+            return;
+
+        if(currentPointer === app.codesExecutedList.length-2 && executedPointer === app.codesExecutedList.length - 1)
+            return;
+        
+        if(currentPointer === -2 && executedPointer === -1 ){
+            executedPointer = 1;
+            currentPointer = 2;
         }
+
+        if(executedPointer > currentPointer){
+            executedPointer = executedPointer + 2;
+            currentPointer = executedPointer + 1;
+        }
+        
+        this.executeCodeAtThisIndex(executedPointer);
+
+        if(executedPointer < currentPointer){
+            executedPointer = currentPointer;
+            currentPointer = currentPointer + 1;
+        }    
+        
     },
 
     openMenu: function(){
@@ -197,13 +235,36 @@ var app = {
         $('.menu-overlay').fadeIn();
     },
 
-    previousExecutedCode: function(){
-        var codeExecuted = app.codesExecutedList[appHistoryIndex];
-        $("#jsCode").val(codeExecuted);
 
-        if((appHistoryIndex-1) >= 0){
-            appHistoryIndex--;
+    previousExecutedCode: function(){  
+        var limitFlag = false;
+        if( currentPointer === -2 && executedPointer === -1){
+            return;
         }
+
+        if( currentPointer === app.codesExecutedList.length+1 && executedPointer === app.codesExecutedList.length){
+            currentPointer = app.codesExecutedList.length -2;
+            executedPointer = app.codesExecutedList.length -1;
+            limitFlag = true;
+        }
+
+        if(executedPointer < currentPointer && limitFlag == false){
+            executedPointer = executedPointer - 2;
+            currentPointer = executedPointer - 1;
+        }
+ 
+        this.executeCodeAtThisIndex(executedPointer);
+
+        if(executedPointer > currentPointer){
+            executedPointer = currentPointer;
+            currentPointer = currentPointer - 1;
+        }  
+    },
+
+
+    executeCodeAtThisIndex: function(indexValue){
+        var codeExecuted = app.codesExecutedList[indexValue];
+        $("#jsCode").val(codeExecuted);
     },
 
     processCode: function(){
@@ -215,6 +276,9 @@ var app = {
         this.printMessage(codeEntered, 'code');
         var response = this.executeScript(codeEntered);
         
+
+
+        console.log(JSON.stringify(response));
         
         $("#jsCode").val('').css('height','5vH');
         if(response.status === 'error'){
@@ -232,7 +296,6 @@ var app = {
         this.codesExecutedList.push(executedCodesObject.code);
         this.codesExecutedObjectsArray.push(executedCodesObject);
         localStorage.setItem("executedCodes", JSON.stringify(this.codesExecutedObjectsArray));
-        appHistoryIndex++;
     },
 
 
@@ -240,6 +303,7 @@ var app = {
 
 
     printMessage: function(message, status){
+    
         if(status === 'error'){
             $('.output-box').append('<div class="console-response color-red">'+message+'</div>');
         }
@@ -255,23 +319,8 @@ var app = {
     }
    
     
-
-
     
 };
 
 
-
-
-
-
-    
-
-    
-    
-
-    
-
-
-    
     

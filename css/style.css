@@ -27,14 +27,16 @@ body{ margin: 0px; overflow-x: hidden;  }
 
 .menu-overlay{position: fixed; top: 0; left: 0px; width: 100%; height: 100vh; background: rgba(255,255,255,0.5); z-index: 5; display: none;}
 .history-menu{ padding: 50px 10px 20px; position: fixed; background: #fbfcfc; height: 100vh; width: 400px; top: 0; right: -400px; border-left: 1px solid #ddd; transition: all 0.5s ease; z-index: 10; box-shadow: 0px 0px 11px -2px #222; }
-.history-menu .menu-elements{ color: #666; width: 100%; max-height: 40px; overflow: hidden; transition: all 0.5s ease; padding: 8px 10px; font-size: 16px; font-weight: lighter; cursor: pointer; border-bottom: 1px solid #ddd;}
-.history-menu .menu-elements:hover{ max-height: 190px; transition: all 0.5s ease; background: #f3f3f3; }
-.history-menu .menu-elements .fa{ display: inline-block; padding-top: 5px; margin-right: 5px; width: 20px; font-size: 14px;}
-.history-menu .menu-elements .text{ display: inline-block; }
+.history-menu .menu-elements{ color: #666; width: 100%; max-height: 40px; overflow: hidden; transition: all 0.5s ease; white-space: nowrap; text-overflow: ellipsis; padding: 8px 10px; font-size: 16px; font-weight: lighter; cursor: pointer; border-bottom: 1px solid #ddd;}
+.history-menu .menu-elements:hover{ max-height: 190px; transition: all 0.5s ease; background: #f3f3f3; white-space: pre-line; }
+.history-menu .menu-elements .fa{ display: block; padding-top: 5px; margin-right: 5px; width: 5%; font-size: 14px;}
+.history-menu .menu-elements .text{ display: block; width: 93%; float: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+.history-menu .menu-elements:hover .text{ white-space: pre-line; overflow: visible; }
 
 .history-menu .menu-elements.success:hover{ color: #27ae60;}
 .history-menu .menu-elements.error:hover{ color: #e74c3c; }
 
+.history-menu .menu-entries-container{overflow: auto; max-height: 90vh;}
 
 .history-menu.open{ right: 0; transition: all 0.5s ease;}
 
