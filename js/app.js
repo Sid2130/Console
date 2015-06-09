@@ -98,6 +98,10 @@ var app = {
         
     },
 
+    clearInputScreen: function(){
+        $("#jsCode").val('');
+    },
+
     clearOutputScreen: function(){
         $('.output-box').children().fadeOut(function(){
             $(this).remove();

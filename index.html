@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700' rel='stylesheet' type='text/css'>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
@@ -10,11 +11,22 @@
     <body>
 
         <div class="main-container">
-            <div class="functional-buttons clear-console"><i class="fa fa-ban" onclick="app.clearOutputScreen();"></i></div>
-            <div class="functional-buttons info"><i class="fa fa-info-circle"></i></div>
-            <div class="functional-buttons history-menu-button" onclick="app.openMenu();"><i class="fa fa-history"></i></div>
+            <div class="menu-container">
+                <div class="functional-buttons clear-input" title="Clear Console Input">
+                    <i class="fa fa-eraser" onclick="app.clearInputScreen();"></i>
+                </div>
+                <div class="functional-buttons clear-console" title="Clear Console Output">
+                    <i class="fa fa-ban" onclick="app.clearOutputScreen();"></i>
+                </div>
+                <div class="functional-buttons info" title="About Console">
+                    <i class="fa fa-info-circle"></i>
+                </div>
+                <div class="functional-buttons history-menu-button" onclick="app.openMenu();" title="History of Codes Executed">
+                    <i class="fa fa-history"></i>
+                </div>
+            </div>
+
             <div class="console-box">
-                
                 <div class="input-box">
                     <div class="textarea-container">
                         <div class="console-icon pull-left">
@@ -29,8 +41,8 @@
 
         <div class="menu-overlay"></div>
         <div id="history-menu" class="history-menu">
-            <div class="menu-button menu-close"><i class="fa fa-times" onclick="app.closeMenu();"></i></div>
-            <div class="menu-button clear-history"><i class="fa fa-trash" onclick="app.clearHistory();"></i></div>
+            <div class="menu-button menu-close"><i class="fa fa-times" onclick="app.closeMenu();" title="Close history list"></i></div>
+            <div class="menu-button clear-history"><i class="fa fa-trash" onclick="app.clearHistory();" title="Clears codes history"></i></div>
             <div class="menu-entries-container"></div>
         </div>
         

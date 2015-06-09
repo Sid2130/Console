@@ -1,13 +1,13 @@
 body{ margin: 0px; overflow-x: hidden;  }
 .main-container {background: #f0f2f2; color: #ecf0f1; font-family: 'Open Sans', sans-serif; height: 100vH; width: 100vW; position: relative; overflow: auto;}
 
-.main-container .console-box{ background: #1a1a1a; width: 70vW; min-height: 90vH; position: absolute; top: 50vH; left: 50vW; margin-top: -45vH; margin-left: -35vW; border-radius: 10px; box-shadow: 0px 25px 10px -17px #444; transition: all 0.5s ease; overflow: auto;}
+.main-container .console-box{ background: #1a1a1a; width: 70vW; height: 90vH; position: absolute; top: 50vH; left: 50vW; margin-top: -45vH; margin-left: -35vW; border-radius: 10px; box-shadow: 0px 25px 10px -17px #444; transition: all 0.5s ease; overflow: auto;}
 .main-container .console-box.zoom-class{ transform: scale(0.8); transition: all 0.5s ease; top: 50%; left: 50%; }
 
 
-.console-box .output-box{ min-height: 75vh; width: 100%; border-top: 1px solid #fbfcfc; padding: 15px;}
+.console-box .output-box{ height: 75vh; width: 100%; border-top: 1px solid #fbfcfc; padding: 15px; overflow: auto;}
 .console-box .output-box .console-response{padding: 3px 0px; border-bottom: 1px solid #222; font-size: 12px; font-style: italic;   word-wrap: break-word;}
-.console-box .output-box .code-entered{padding: 5px 0px; border-bottom: 1px solid #aaa; margin-top: 15px;}
+.console-box .output-box .code-entered{padding: 5px 0px; border-bottom: 1px solid #aaa; margin-top: 10px;}
 
 .console-box .input-box{ min-height: 15vh; width: 100%;   overflow: hidden;}
 .console-box .input-box .textarea-container{ padding-top: 10px;}
@@ -15,19 +15,17 @@ body{ margin: 0px; overflow-x: hidden;  }
 .console-box .input-box textarea:focus{outline: none;}
 .console-box .input-box .console-icon{ width: 2%; height: 30px; text-align: right; font-size: 20px;}
 
-.functional-buttons{ width: 25px; height: 25px; text-align: center; color: #27ae60;  font-size: 22px; position: absolute; right: 25vh; transition: all 0.25s ease; border-radius: 50%; }
-.functional-buttons:hover{ color: #fff; background: #27ae60;  transition: all 0.25s ease;}
+
+
+.menu-container{ width: 32px; position: absolute; right: 10vw; top: 5vh;}
+.functional-buttons{ width: 31px; height: 31px; text-align: center; color: #aaa;  font-size: 18px; border-radius: 50%; transition: all 0.25s ease; padding-top: 5px; margin-bottom: 15px; border: 1px solid #aaa; }
+.functional-buttons:hover{ color: #fff; background: #27ae60;  transition: all 0.25s ease; border: 1px solid #27ae60;}
 .functional-buttons .fa{ cursor: pointer; margin-top: 1px; display: block;}
 
-
-.clear-console{ top: 5vh; }
-.info{ top: 12vh; }
-.history-menu-button{top: 20vh;}
-
-
 .menu-overlay{position: fixed; top: 0; left: 0px; width: 100%; height: 100vh; background: rgba(255,255,255,0.5); z-index: 5; display: none;}
-.history-menu{ padding: 50px 10px 20px; position: fixed; background: #fbfcfc; height: 100vh; width: 400px; top: 0; right: -400px; border-left: 1px solid #ddd; transition: all 0.5s ease; z-index: 10; box-shadow: 0px 0px 11px -2px #222; }
-.history-menu .menu-elements{ color: #666; width: 100%; max-height: 40px; overflow: hidden; transition: all 0.5s ease; white-space: nowrap; text-overflow: ellipsis; padding: 8px 10px; font-size: 16px; font-weight: lighter; cursor: pointer; border-bottom: 1px solid #ddd;}
+.history-menu{ padding: 45px 10px 20px; position: fixed; background: #fbfcfc; height: 100vh; width: 400px; top: 0; right: -400px; border-left: 1px solid #ddd; transition: all 0.5s ease; z-index: 10; box-shadow: 0px 0px 11px -2px #222; }
+.history-menu .menu-elements{  color: #666; width: 100%; max-height: 42px; overflow: hidden; transition: all 0.5s ease; white-space: nowrap; text-overflow: ellipsis; padding: 10px; font-size: 14px; font-weight: lighter; cursor: pointer; border-bottom: 1px solid #ddd;}
+.history-menu .menu-elements.error{font-style: normal;}
 .history-menu .menu-elements:hover{ max-height: 190px; transition: all 0.5s ease; background: #f3f3f3; white-space: pre-line; }
 .history-menu .menu-elements .fa{ display: block; padding-top: 5px; margin-right: 5px; width: 5%; font-size: 14px;}
 .history-menu .menu-elements .text{ display: block; width: 93%; float: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
@@ -35,19 +33,14 @@ body{ margin: 0px; overflow-x: hidden;  }
 
 .history-menu .menu-elements.success:hover{ color: #27ae60;}
 .history-menu .menu-elements.error:hover{ color: #e74c3c; }
-
-.history-menu .menu-entries-container{overflow: auto; max-height: 90vh;}
-
+.history-menu .menu-entries-container{overflow: auto; max-height: 90vh; padding-top: 5px; border-top: 1px solid #666;}
 .history-menu.open{ right: 0; transition: all 0.5s ease;}
 
-
-.history-menu .menu-button{ width: 20px; height: 20px; position: absolute; top: 5px; text-align: center; font-size: 14px; cursor: pointer; border-radius: 3px; transition: all 0.5s ease; }
+.history-menu .menu-button{ width: 30px; height: 30px; position: absolute; top: 8px; text-align: center; font-size: 18px; cursor: pointer; border-radius: 50%; transition: all 0.5s ease; padding-top: 3px;}
 .history-menu .menu-button .fa{ display: block; margin-top: 2px;}
-
 .history-menu .menu-close{ left: 10px; color: #aaa; border: 1px solid #aaa;}
 .history-menu .menu-close:hover{  background: #c0392b; color: #fff; border: 1px solid #c0392b; transition: all 0.5s ease; }
-
-.history-menu .clear-history{ left: 40px; color: #aaa; border: 1px solid #aaa;}
+.history-menu .clear-history{ left: 55px; color: #aaa; border: 1px solid #aaa;}
 .history-menu .clear-history:hover{ background: #c0392b; color: #fff; border: 1px solid #c0392b; transition: all 0.5s ease; }
 
 
@@ -69,3 +62,22 @@ body{ margin: 0px; overflow-x: hidden;  }
 .ui-state-focus, 
 .ui-widget-content .ui-state-focus, 
 .ui-widget-header .ui-state-focus { border: 1px solid #aaa; background: #eee; font-weight: normal; color: #212121; }
+
+
+
+@media all and (max-width: 991px) {
+
+	.main-container .console-box{ width: 96vw; height: 90vH; position: absolute; top: 53vH; left: 50vW; margin-top: -45vH; margin-left: -48vW;}
+	.console-box .input-box textarea{ width: 95%; }
+	.console-box .input-box .console-icon{ width: 5%; height: 30px; text-align: right; font-size: 20px;}
+
+	.menu-container{ width: 100%; height: 40px; position: absolute; right: 0vw; top: 0vh; overflow: hidden;}
+	.functional-buttons{ width: 25%; height: 40px; padding-top: 10px; margin-bottom: 10px; display: block; float: left; border-radius: 0px; border: 0px; }
+	.functional-buttons:hover{ border: 0px;}
+
+	.history-menu{ width: 100vw; right: -100vw;}
+	
+	.history-menu .menu-close{ right: 60px; left: auto; }
+	.history-menu .clear-history{ right: 15px; left: auto; }
+
+}
