@@ -13,6 +13,7 @@ $(document).ready(function(){
 });
 
 
+// ENTER key will execute the code and SHIFT+ENTER will take to new line
 $("#jsCode").bind('keydown', function(event) {
     if( event.shiftKey && event.which === 13 ) {
         return;
@@ -26,6 +27,7 @@ $("#jsCode").bind('keydown', function(event) {
 });
 
 
+// Binding UP and DOWN key to get last/next code executed
 $("#jsCode").bind('keyup', function(event) {
     
     if(event.which === 38){
@@ -49,8 +51,17 @@ $("#jsCode").bind('keyup', function(event) {
 });
 
 
+// Overwriting console.log to log on webpage
+console.log = function(message){
+    message = app.replaceLessThan(message);
+    app.printMessage(message)
+}
+
+
+// Object name space declaration of app
 var app = {
 
+    // Few JS Tags declaration for auto-complete feature
     jsTags : [
         'addEventListener', 'alert', 'app', 'applicationCache', 'blur', 'break',
         'case', 'confirm', 'console', 'continue', 'copy', 'default', 'document', 'delete',
@@ -60,16 +71,21 @@ var app = {
         'this', 'throw', 'toString', 'typeof', 'try', 'valueOf', 'values', 'var', 'void', 'while', 'window', 'with' 
     ],
     
+
+    //Stores array of objects of all the codes executed
     codesExecutedObjectsArray: [],
+
+    //atores all the codes executed in array for fetching history of codes
     codesExecutedList: [],
 
 
+    //Will fetch the code from Code-History Menu and write it on console's i/p
     addCodeToConsole: function(htmlObject){
         $("#jsCode").val($(htmlObject).text().trim());
         this.closeMenu();
     },
 
-
+    //Once the code is executed, it will be added to code history Menu
     addInHistoryMenu: function(codeEntered, status){
         if(codeEntered.indexOf('<') > -1){
             codeEntered = codeEntered.replace(/</g, '&lt;');
@@ -82,7 +98,7 @@ var app = {
         }  
     },
 
-
+    //Clears the history of codes executed
     clearHistory: function(){
         var clearHistoryConfirm = confirm("Are you sure you want to clear history?")
         if(clearHistoryConfirm){
@@ -91,6 +107,8 @@ var app = {
                 $(this).remove();
             });
             this.closeMenu();
+            this.codesExecutedObjectsArray = [];
+            this.codesExecutedList = [];
         }
         else{
             return;
@@ -98,10 +116,12 @@ var app = {
         
     },
 
+    //Clears the console's i/p screen
     clearInputScreen: function(){
         $("#jsCode").val('');
     },
 
+    //Clears the console's o/p screen
     clearOutputScreen: function(){
         $('.output-box').children().fadeOut(function(){
             $(this).remove();
@@ -109,6 +129,7 @@ var app = {
     },
 
 
+    //called when page is loaded to create the History-menu from the data stored in localStorage
     createListFromLocal: function(){
         var storedObject = this.getCodesExecutedObject();
         if(storedObject === '' || storedObject === null){
@@ -120,19 +141,24 @@ var app = {
         }
     },
 
+    //closes the code-history menu list
     closeMenu: function(){
         $('#history-menu').removeClass('open');
         $('.console-box').removeClass('zoom-class');
         $('.menu-overlay').fadeOut();
     },
 
+    //will print the fetched code from array based on UP/Down Key event and writes that code in console's i/p
+    executeCodeAtThisIndex: function(indexValue){
+        var codeExecuted = app.codesExecutedList[indexValue];
+        $("#jsCode").val(codeExecuted);
+    },
 
+    //Will execute the JS code passed through the console's i/p and returns the response
     executeScript: function(codeReceived){
         var response;
         try{
             response = window.eval(codeReceived);
-            //response = window[codeReceived];
-            console.log(response);
         }
         catch(error){
             return {status: 'error', message: error};
@@ -140,21 +166,34 @@ var app = {
         return {status: 'ok', message: response};
     },
 
-
-
-    
+    //Called at time of page load to create the array of codes executed from the data stored in localStorage
     getCodesExecutedList: function(){
         var storedObject = this.getCodesExecutedObject();
         for(var index=0; index<storedObject.length; index++){
             app.codesExecutedList.push(storedObject[index].code);
         }
-
         this.initializeIndex();
     },
 
+    //Called at time of page load to create the array of codes executed object from the data stored in localStorage
+    getCodesExecutedObject: function(){
+        var storedObject = localStorage.getItem("executedCodes");
+        if(storedObject === '' || storedObject === null){
+            return '';
+        }
+        storedObject = JSON.parse(storedObject);
+        return storedObject;
+    },
+
+    // Return the current line number based on caret's position in console's i/p
+    getLineNumber: function(){
+        var inputText = $("#jsCode").val();
+        return inputText.substr(0, $("#jsCode")[0].selectionStart).split("\n").length;
+    },
+
+    //to initialize/re-initialize auto-complete at the time of page load and everytime new code is executed
     initializeAutoComplete: function(){
         var autocompleteSource = this.jsTags.concat(_.uniq(this.codesExecutedList));
-        //console.log(JSON.stringify(autocompleteSource));
         $( "#jsCode" ).autocomplete({
             source: autocompleteSource,
             response: function(event, ui) {
@@ -168,6 +207,7 @@ var app = {
         });
     },
 
+    //to initialise the indices for prev/next code executed event called by up/down key
     initializeIndex: function(){
         if(app.codesExecutedList.length === 0){
             return;
@@ -183,20 +223,7 @@ var app = {
 
     },
 
-    getCodesExecutedObject: function(){
-        var storedObject = localStorage.getItem("executedCodes");
-        if(storedObject === '' || storedObject === null){
-            return '';
-        }
-        storedObject = JSON.parse(storedObject);
-        return storedObject;
-    },
-
-    getLineNumber: function(){
-        var inputText = $("#jsCode").val();
-        return inputText.substr(0, $("#jsCode")[0].selectionStart).split("\n").length;
-    },
-
+    // last line of console's i/p
     lastLineOfInput: function(){
         var inputText = $("#jsCode").val();
         if(inputText.indexOf("\n") < 0){
@@ -205,6 +232,7 @@ var app = {
         return (inputText.length - inputText.replace(/\n/g,'').length)+1;
     },
 
+    //returns the index of code executed after the one which is currently appearing in console's i/p , called by DOWN key event
     nextExecutedCode: function(){
         if( currentPointer === app.codesExecutedList.length+1 && executedPointer === app.codesExecutedList.length)
             return;
@@ -231,13 +259,14 @@ var app = {
         
     },
 
+    //Opens the code-history Menu
     openMenu: function(){
         $('#history-menu').addClass('open');
         $('.console-box').addClass('zoom-class');
         $('.menu-overlay').fadeIn();
     },
 
-
+    //returns the index of code executed before the one which is currently appearing in console's i/p , called by UP key event
     previousExecutedCode: function(){  
         var limitFlag = false;
         if( currentPointer === -2 && executedPointer === -1){
@@ -263,12 +292,24 @@ var app = {
         }  
     },
 
-
-    executeCodeAtThisIndex: function(indexValue){
-        var codeExecuted = app.codesExecutedList[indexValue];
-        $("#jsCode").val(codeExecuted);
+    //Prints message on console's o/p
+    printMessage: function(message, status){
+    
+        if(status === 'error'){
+            $('.output-box').append('<div class="console-response color-red">'+message+'</div>');
+        }
+        else if(status === 'ok'){
+            $('.output-box').append('<div class="console-response color-green">'+message+'</div>');
+        }
+        else if(status === 'code'){
+            $('.output-box').append('<div class="code-entered">'+message+'</div>');
+        }
+        else{
+            $('.output-box').append('<div class="console-response color-blue">'+message+'</div>');
+        }
     },
 
+    //Once enter is pressed, it is executed and processing of code starts
     processCode: function(){
         var executedCodesObject = {};
         var codeEntered = $("#jsCode").val();
@@ -284,12 +325,10 @@ var app = {
         $("#jsCode").val('').css('height','5vH');
         if(response.status === 'error'){
             this.printMessage(response.message, 'error');
-            //this.addInHistoryMenu(codeEntered, 'error');
         }
         
         else{
             this.printMessage(response.message, 'ok');
-            //this.addInHistoryMenu(codeEntered, 'ok');
         }
 
         executedCodesObject.status = response.status;
@@ -304,30 +343,12 @@ var app = {
         this.initializeAutoComplete();
     },
 
+    // refactoring code history array to remove repetitive elements
     reFactorExecutedCodesArray: function(){
         this.codesExecutedList = _.uniq(this.codesExecutedList);
     },
 
-
-    updateHistoryMenu: function(index, executedCodesObject){
-        console.log(index);
-        if(index > -1){
-            var childIndex = index + 1;
-            var htmlToAppend = $('.menu-entries-container .menu-elements:nth-child('+childIndex+')').clone();
-            $('.menu-entries-container .menu-elements:nth-child('+childIndex+')').remove();
-            $('.menu-entries-container').append(htmlToAppend);
-        }
-        else{
-            if(executedCodesObject.status === 'error'){
-                this.addInHistoryMenu(executedCodesObject.code, 'error');
-            }
-            else{
-                this.addInHistoryMenu(executedCodesObject.code, 'ok');
-            }
-        }
-        
-    },
-
+     // refactoring code history Object array to remove repetitive elements
     reFactorExecutedCodesObjectArray: function(lastObjectToPush){
         var lastExecutedCode = lastObjectToPush.code;
         var currentArray = this.codesExecutedObjectsArray;
@@ -348,45 +369,44 @@ var app = {
         return lastIndexOfExecutedCode;
     },
 
-
-
-
-    replaceGreaterThan: function(receivedString){
-        if(typeof(receivedString) == 'object'){
+    // to replace < with &lt;
+    replaceLessThan: function(receivedString){
+        
+        if(receivedString !== undefined && typeof(receivedString) == 'object'){
             receivedString = JSON.stringify(receivedString);
         }
 
-        if(receivedString.constructor === Array){
+        if(receivedString !== undefined && receivedString.constructor === Array){
+            receivedString = receivedString+'';
+        }
+
+        if(receivedString !== undefined && typeof(receivedString) !== 'string'){
             receivedString = receivedString+'';
         }
 
         if(receivedString !== undefined && receivedString !== null && receivedString !== ''){
             receivedString = receivedString.replace(/</g, '&lt;');
-
         }
         return receivedString;
     },
 
-
-    printMessage: function(message, status){
-    
-        if(status === 'error'){
-            $('.output-box').append('<div class="console-response color-red">'+message+'</div>');
-        }
-        else if(status === 'ok'){
-            $('.output-box').append('<div class="console-response color-green">'+message+'</div>');
-        }
-        else if(status === 'code'){
-            $('.output-box').append('<div class="code-entered">'+message+'</div>');
+    //updating history menu after refactoring the array to remove repetitive elements
+    updateHistoryMenu: function(index, executedCodesObject){
+        if(index > -1){
+            var childIndex = index + 1;
+            var htmlToAppend = $('.menu-entries-container .menu-elements:nth-child('+childIndex+')').clone();
+            $('.menu-entries-container .menu-elements:nth-child('+childIndex+')').remove();
+            $('.menu-entries-container').append(htmlToAppend);
         }
         else{
-            $('.output-box').append('<div class="console-response color-blue">'+message+'</div>');
+            if(executedCodesObject.status === 'error'){
+                this.addInHistoryMenu(executedCodesObject.code, 'error');
+            }
+            else{
+                this.addInHistoryMenu(executedCodesObject.code, 'ok');
+            }
         }
+        
     }
-   
-    
     
 };
-
-
-    
