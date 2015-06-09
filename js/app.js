@@ -8,20 +8,8 @@ $(document).ready(function(){
    
     app.getCodesExecutedList();
     app.createListFromLocal();
+    app.initializeAutoComplete();
 
-    var autocompleteSource = app.jsTags.concat(app.codesExecutedList);
-    //console.log(JSON.stringify(autocompleteSource));
-    $( "#jsCode" ).autocomplete({
-        source: autocompleteSource,
-        response: function(event, ui) {
-            // ui.content is the array that's about to be sent to the response callback.
-            if (ui.content.length === 0) {
-                $("#empty-message").text("No results found");
-            } else {
-                $("#empty-message").empty();
-            }
-        }
-    });
 });
 
 
@@ -60,12 +48,6 @@ $("#jsCode").bind('keyup', function(event) {
     }
 });
 
-console.log = function(message){
-    app.printMessage(message);
-}
-
-
- 
 
 var app = {
 
@@ -164,6 +146,22 @@ var app = {
         }
 
         this.initializeIndex();
+    },
+
+    initializeAutoComplete: function(){
+        var autocompleteSource = this.jsTags.concat(_.uniq(this.codesExecutedList));
+        //console.log(JSON.stringify(autocompleteSource));
+        $( "#jsCode" ).autocomplete({
+            source: autocompleteSource,
+            response: function(event, ui) {
+                // ui.content is the array that's about to be sent to the response callback.
+                if (ui.content.length === 0) {
+                    $("#empty-message").text("No results found");
+                } else {
+                    $("#empty-message").empty();
+                }
+            }
+        });
     },
 
     initializeIndex: function(){
@@ -273,33 +271,97 @@ var app = {
         if(codeEntered === ""){
             return;
         }
-        this.printMessage(codeEntered, 'code');
+
+        var codeEnteredToPrint = codeEntered.replace(/</g, '&lt;');
+
+        this.printMessage(codeEnteredToPrint, 'code');
         var response = this.executeScript(codeEntered);
-        
-
-
-        console.log(JSON.stringify(response));
         
         $("#jsCode").val('').css('height','5vH');
         if(response.status === 'error'){
             this.printMessage(response.message, 'error');
-            this.addInHistoryMenu(codeEntered, 'error');
+            //this.addInHistoryMenu(codeEntered, 'error');
         }
         
         else{
             this.printMessage(response.message, 'ok');
-            this.addInHistoryMenu(codeEntered, 'ok');
+            //this.addInHistoryMenu(codeEntered, 'ok');
         }
 
         executedCodesObject.status = response.status;
         executedCodesObject.code = codeEntered;
         this.codesExecutedList.push(executedCodesObject.code);
-        this.codesExecutedObjectsArray.push(executedCodesObject);
-        localStorage.setItem("executedCodes", JSON.stringify(this.codesExecutedObjectsArray));
+        this.reFactorExecutedCodesArray();
+
+        var indexForMenuUpdate = this.reFactorExecutedCodesObjectArray(executedCodesObject);
+        this.updateHistoryMenu(indexForMenuUpdate, executedCodesObject);
+        
+        this.initializeIndex();
+        this.initializeAutoComplete();
+    },
+
+    reFactorExecutedCodesArray: function(){
+        this.codesExecutedList = _.uniq(this.codesExecutedList);
     },
 
 
-   
+    updateHistoryMenu: function(index, executedCodesObject){
+        console.log(index);
+        if(index > -1){
+            var childIndex = index + 1;
+            var htmlToAppend = $('.menu-entries-container .menu-elements:nth-child('+childIndex+')').clone();
+            $('.menu-entries-container .menu-elements:nth-child('+childIndex+')').remove();
+            $('.menu-entries-container').append(htmlToAppend);
+        }
+        else{
+            if(executedCodesObject.status === 'error'){
+                this.addInHistoryMenu(executedCodesObject.code, 'error');
+            }
+            else{
+                this.addInHistoryMenu(executedCodesObject.code, 'ok');
+            }
+        }
+        
+    },
+
+    reFactorExecutedCodesObjectArray: function(lastObjectToPush){
+        var lastExecutedCode = lastObjectToPush.code;
+        var currentArray = this.codesExecutedObjectsArray;
+        var lastIndexOfExecutedCode = _.findLastIndex(currentArray, { code: lastExecutedCode });
+        if(lastIndexOfExecutedCode > -1){
+            for(var index = lastIndexOfExecutedCode; index < currentArray.length; index++){
+                currentArray[index] = currentArray[index+1];
+                if(index === currentArray.length - 1){
+                    currentArray[index] = lastObjectToPush;
+                }
+            }
+            this.codesExecutedObjectsArray = currentArray;
+        }
+        else{
+            this.codesExecutedObjectsArray.push(lastObjectToPush);
+        } 
+        localStorage.setItem("executedCodes", JSON.stringify(this.codesExecutedObjectsArray));
+        return lastIndexOfExecutedCode;
+    },
+
+
+
+
+    replaceGreaterThan: function(receivedString){
+        if(typeof(receivedString) == 'object'){
+            receivedString = JSON.stringify(receivedString);
+        }
+
+        if(receivedString.constructor === Array){
+            receivedString = receivedString+'';
+        }
+
+        if(receivedString !== undefined && receivedString !== null && receivedString !== ''){
+            receivedString = receivedString.replace(/</g, '&lt;');
+
+        }
+        return receivedString;
+    },
 
 
     printMessage: function(message, status){

@@ -6,7 +6,7 @@ body{ margin: 0px; overflow-x: hidden;  }
 
 
 .console-box .output-box{ min-height: 75vh; width: 100%; border-top: 1px solid #fbfcfc; padding: 15px;}
-.console-box .output-box .console-response{padding: 3px 0px; border-bottom: 1px solid #222; font-size: 12px; font-style: italic;}
+.console-box .output-box .console-response{padding: 3px 0px; border-bottom: 1px solid #222; font-size: 12px; font-style: italic;   word-wrap: break-word;}
 .console-box .output-box .code-entered{padding: 5px 0px; border-bottom: 1px solid #aaa; margin-top: 15px;}
 
 .console-box .input-box{ min-height: 15vh; width: 100%;   overflow: hidden;}
